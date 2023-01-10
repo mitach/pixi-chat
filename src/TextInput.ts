@@ -25,7 +25,7 @@ export class TextInput extends Container {
         this.text.position.set(10, 10);
         this.addChild(this.text);
 
-        this.textHandler = this.onText.bind(this)
+        this.textHandler = this.onText.bind(this);
 
         this.interactive = true;
 

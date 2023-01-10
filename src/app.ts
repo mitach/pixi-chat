@@ -4,11 +4,18 @@ import { TextInput } from './TextInput';
 import { TextOutput } from './TextOutput';
 import { constructPanel } from './util';
 
+import {io} from 'socket.io-client';
+
+let socket = io('http://localhost:3000');
+
+socket.on('connect', () => {
+    console.log('connected to port 3000');
+    init();
+})
+
 const app = new PIXI.Application({width: 800, height: 600, backgroundColor: 0x44a2c4});
 app.ticker.add(update);
 document.body.appendChild(app.view as HTMLCanvasElement);
-
-init();
 
 async function init() {
     const bevelBaseTexture = PIXI.BaseTexture.from('assets/bevel.png');
@@ -37,11 +44,18 @@ async function init() {
 
     app.stage.addChild(textOutput, textInput, button);
 
+    socket.on('message', ({message}) => {
+        console.log('delivered: ', message);
+        textOutput.addMessage(message);
+    });
+
     function onSend() {
         if (textInput.message) {
             console.log('sending:', textInput.message);
-            
-            textOutput.addMessage(textInput.message)
+
+            socket.emit('message', textInput.message);
+
+            // textOutput.addMessage(textInput.message);
             textInput.clear();
         }
     }
